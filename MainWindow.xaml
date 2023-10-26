@@ -1,0 +1,169 @@
+﻿<Window x:Class="TimeDelaySignals.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:cm="clr-namespace:System.ComponentModel;assembly=System"
+        
+        mc:Ignorable="d"
+        Title="Оценка временной задержки сигналов"
+        RenderOptions.BitmapScalingMode="HighQuality"
+        WindowState="Maximized"
+        FontSize="12" FontFamily="Roboto"
+        Loaded="OnLoadedMainWindow">
+    <Grid Margin="5,0,5,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="45*" />
+            <ColumnDefinition Width="10*" />
+        </Grid.ColumnDefinitions>
+
+        <GroupBox Grid.Column="0" Header="Графики">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <WpfPlot Grid.Row="0" Name="ChartReferenceSignal" FontFamily="JetBrains Mono"/>
+                <WpfPlot Grid.Row="1" Name="ChartResearchedSignal" FontFamily="JetBrains Mono"/>
+                <WpfPlot Grid.Row="2" Name="ChartCorellation" FontFamily="JetBrains Mono"/>
+                <WpfPlot Grid.Row="0" Grid.RowSpan="3" Name="ChartResearch" FontFamily="JetBrains Mono" Visibility="Collapsed" />
+            </Grid>
+
+        </GroupBox>
+
+        <StackPanel Grid.Column="1">
+            <GroupBox Header="Параметры сигнала">
+                <StackPanel Height="187">
+                    <WrapPanel HorizontalAlignment="Right">
+                        <Label>Число бит</Label>
+                        <xctk:IntegerUpDown Name="BitsCount" 
+                                        TextAlignment="Right" Width="50" Height="25" 
+                                        Minimum="10" Maximum="1000" Increment="1" Value="100"/>
+                    </WrapPanel>
+                    <WrapPanel HorizontalAlignment="Right">
+                        <Label>Скорость передачи (бит/с)</Label>
+                        <xctk:IntegerUpDown Name="BaudRate" 
+                                        TextAlignment="Right" Width="50" Height="25" 
+                                        Minimum="10" Maximum="1000" Increment="1" Value="500"/>
+                    </WrapPanel>
+                    <WrapPanel HorizontalAlignment="Right">
+                        <Label>Частота дискретизации (кГц)</Label>
+                        <xctk:DoubleUpDown Name="SamplingFreq"
+                                        TextAlignment="Right" Width="50" Height="25"
+                                        Minimum="0.01" Maximum="1000" Increment=".1" Value="10"/>
+                    </WrapPanel>
+                    <WrapPanel HorizontalAlignment="Right">
+                        <Label>Несущая частота (кГц)</Label>
+                        <xctk:DoubleUpDown Name="CarrierFreq"
+                                        TextAlignment="Right" Width="50" Height="25"
+                                        Minimum="0.01" Maximum="100" Increment="0.1" Value="0.5"/>
+                    </WrapPanel>
+                    <GroupBox x:Name="groupBox" Header="Параметры исследуемого сигнала">
+                        <StackPanel>
+                            <WrapPanel HorizontalAlignment="Right">
+                                <Label>Временая задержка (мс)</Label>
+                                <xctk:IntegerUpDown Name="Delay"
+                                        TextAlignment="Right" Width="50" Height="25"
+                                        Minimum="1" Maximum="10000" Increment="1" Value="500"/>
+                            </WrapPanel>
+
+                            <WrapPanel HorizontalAlignment="Right">
+                                <Label>Отношение сигнал/шум (дБ)</Label>
+                                <xctk:DoubleUpDown Name="SNR"
+                                        TextAlignment="Right" Width="50" Height="25"
+                                        Minimum="-30" Maximum="30" Increment=".5" Value="-12"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Параметры модуляции">
+                <StackPanel>
+                    <RadioButton Content="ASK" Name="RbIsAsk" Checked="RbIsAsk_Checked"  />
+                    <StackPanel Name="GbAskParams">
+                        <WrapPanel HorizontalAlignment="Right" Margin="0 5 0 0">
+                            <Label>Нижняя амплитуда:</Label>
+                            <xctk:DoubleUpDown x:Name="A0"
+                                           TextAlignment="Right" Width="55" Height="25"
+                                           Minimum="0" Maximum="100" Increment="0.1" Value="5"/>
+                        </WrapPanel>
+                        <WrapPanel HorizontalAlignment="Right" Margin="0 5 0 0">
+                            <Label>Верхняя амплитуда:</Label>
+                            <xctk:DoubleUpDown Name="A1" 
+                                           TextAlignment="Right" Width="75" Height="25" 
+                                           Minimum="0" Maximum="100" Increment="0.1" Value="20" />
+                        </WrapPanel>
+                    </StackPanel>
+                    <RadioButton Content="FSK" Name="RbIsFsk" Checked="RbIsFsk_Checked"  />
+                    <StackPanel Name="GbFskParams">
+                        <WrapPanel HorizontalAlignment="Right" Margin="0 5 0 0">
+                            <Label>Нижняя частота:</Label>
+                            <xctk:IntegerUpDown x:Name="F0"
+                                           TextAlignment="Right" Width="55" Height="25"
+                                           Minimum="1" Maximum="10000" Increment="50" Value="1000"/>
+                        </WrapPanel>
+                        <WrapPanel HorizontalAlignment="Right" Margin="0 5 0 0">
+                            <Label>Верхняя частота:</Label>
+                            <xctk:IntegerUpDown Name="F1"
+                                           TextAlignment="Right" Width="75" Height="25"
+                                           Minimum="0" Maximum="10000" Increment="50" Value="3000" />
+                        </WrapPanel>
+                    </StackPanel>
+                    <RadioButton Content="PSK" Name="RbIsPsk" Checked="RbIsPsk_Checked"  />
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Оценка временной задержки">
+                <StackPanel>
+                    <WrapPanel HorizontalAlignment="Right" Margin="0 5 0 0">
+                        <Label>Временная задержка по корреляции, c</Label>
+                        <TextBox Name="CorrelationDelay"
+                             TextAlignment="Right" VerticalContentAlignment="Center" IsReadOnly="True"
+                             Width="75" Height="25" />
+                    </WrapPanel>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Параметры исследования">
+                <StackPanel Height="108">
+                    <WrapPanel HorizontalAlignment="Right">
+                        <Label>Нижняя граница SNR</Label>
+                        <xctk:IntegerUpDown Name="DownBorder" 
+                                TextAlignment="Right" Width="50" Height="25" 
+                                Minimum="-50" Maximum="0" Increment="1" Value="-20"/>
+                    </WrapPanel>
+                    <WrapPanel HorizontalAlignment="Right">
+                        <Label>Верхняя граница SNR</Label>
+                        <xctk:IntegerUpDown Name="UpBorder" 
+                                TextAlignment="Right" Width="50" Height="25" 
+                                Minimum="0" Maximum="50" Increment="1" Value="1"/>
+                    </WrapPanel>
+                    <WrapPanel HorizontalAlignment="Right">
+                        <Label>Шаг по SNR</Label>
+                        <xctk:DoubleUpDown Name="Step" 
+                                TextAlignment="Right" Width="50" Height="25" 
+                                Minimum="0" Maximum="50" Increment="0.5" Value="1"/>
+                    </WrapPanel>
+                    <WrapPanel HorizontalAlignment="Right">
+                        <Label>Число усреднений</Label>
+                        <xctk:IntegerUpDown Name="MeanCount" 
+                                TextAlignment="Right" Width="50" Height="25" 
+                                Minimum="1" Maximum="1000" Increment="1" Value="100"/>
+                    </WrapPanel>
+                </StackPanel>
+            </GroupBox>
+            <Button x:Name="GenerateSignals" Content="Смоделировать сигналы" Click="GenerateSignals_Click"/>
+            <Button x:Name="ConductResearch" Content="Провести исследование" Click="ConductResearch_Click" />
+            <ProgressBar Name="ProgressResearch"
+         Margin="0 5 0 0" Height="25" Visibility="Collapsed"
+         Maximum="1000" />
+        </StackPanel>
+    </Grid>
+    <Window.Resources>
+        <cm:BackgroundWorker x:Key="BackgroundWorkerConductResearch"
+                     WorkerReportsProgress="True"
+                     DoWork="OnDoWorkBackgroundWorkerConductResearch"
+                     RunWorkerCompleted="OnRunWorkerCompletedBackgroundWorkerConductResearch"
+                     ProgressChanged="OnProgressChangedBackgroundWorkerConductResearch" />
+    </Window.Resources>
+</Window>
