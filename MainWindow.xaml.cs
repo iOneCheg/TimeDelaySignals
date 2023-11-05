@@ -31,7 +31,7 @@ namespace TimeDelaySignals
         private readonly BackgroundWorker _bgResearch;
         private Dictionary<ModulationType, List<PointD>> _snrResearch;
         private Tuple<ModulationType, int, int, int, int, int> signalParam;
-        private Dictionary<string,object> modParam;
+        private Dictionary<string, object> modParam;
         private HashSet<object> researchParam;
         public MainWindow()
         {
@@ -88,11 +88,16 @@ namespace TimeDelaySignals
                 ["f1"] = f1
             };
 
+            ChartReferenceSignal.Visibility = Visibility.Visible;
+            ChartResearchedSignal.Visibility = Visibility.Visible;
+            ChartCorellation.Visibility = Visibility.Visible;
+            ChartResearch.Visibility = Visibility.Collapsed;
+
             //Рассчет модуляции, затем корреляции и нахождение max
             _gS = new GenerateSignals(signalParam);
             _gS.ModulateSignals(modParam);
             _gS.MakeNoise((double)snr);
-            _gS.CrossCorrelate(out MaxIndex);
+            _gS.CalculateCorrelation(out MaxIndex);
             //_gS.CalculateCorrelation(out MaxIndex);
 
             var yMax = _gS.desiredSignal.Max(p => double.Abs(p.Y));
@@ -105,14 +110,14 @@ namespace TimeDelaySignals
             ChartResearchedSignal.Plot.Clear();
             ChartResearchedSignal.Plot.AddSignalXY(_gS.researchedSignal.Select(p => p.X).ToArray(),
                 _gS.researchedSignal.Select(p => p.Y).ToArray(), color: Color.Blue);
-            ChartResearchedSignal.Plot.AddVerticalLine((double)delay/1000d, Color.Green);
+            ChartResearchedSignal.Plot.AddVerticalLine((double)delay / 1000d, Color.Green);
             ChartResearchedSignal.Plot.AddVerticalLine((double)delay / 1000d + _gS.Tsample, Color.Green);
             ChartResearchedSignal.Refresh();
 
             ChartCorellation.Plot.Clear();
             ChartCorellation.Plot.AddSignalXY(_gS.correlation.Select(p => p.X).ToArray(),
                 _gS.correlation.Select(p => p.Y).ToArray(), color: System.Drawing.Color.Blue);
-            ChartCorellation.Plot.AddVerticalLine((double)delay/1000d, Color.Green);
+            ChartCorellation.Plot.AddVerticalLine((double)delay / 1000d, Color.Green);
             ChartCorellation.Plot.AddVerticalLine(MaxIndex * _gS.dt, Color.Red);
             ChartCorellation.Refresh();
 
@@ -158,7 +163,7 @@ namespace TimeDelaySignals
             { (int)MeanCount.Value, (int)UpBorder.Value, (int)DownBorder.Value, (double)Step.Value };
 
             ProgressResearch.Value = 0;
-            ProgressResearch.Maximum = 3 * (int)researchParam.ElementAt(0) * ((int)researchParam.ElementAt(1) - (int)researchParam.ElementAt(2)) / ((double)researchParam.ElementAt(3) + 1);
+            ProgressResearch.Maximum = 2 * 3 * (int)researchParam.ElementAt(0) * ((int)researchParam.ElementAt(1) - (int)researchParam.ElementAt(2)) / ((double)researchParam.ElementAt(3) + 1);
 
             _bgResearch.RunWorkerAsync();
         }

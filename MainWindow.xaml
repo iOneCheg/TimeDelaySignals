@@ -155,8 +155,8 @@
             <Button x:Name="GenerateSignals" Content="Смоделировать сигналы" Click="GenerateSignals_Click"/>
             <Button x:Name="ConductResearch" Content="Провести исследование" Click="ConductResearch_Click" />
             <ProgressBar Name="ProgressResearch"
-         Margin="0 5 0 0" Height="25" Visibility="Collapsed"
-         Maximum="1000" />
+                 Margin="0 5 0 0" Height="25" Visibility="Collapsed"
+                 Maximum="1000" />
         </StackPanel>
     </Grid>
     <Window.Resources>
